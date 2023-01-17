@@ -9,7 +9,7 @@ const mapEvent = (event) => ({
 })
 
 function Registrations() {
-  const { registry } = useContext(EthereumContext);
+  const { registry, provider } = useContext(EthereumContext);
   const [registrations, setRegistrations] = useState(undefined);
 
   useEffect(() => {
@@ -22,7 +22,8 @@ function Registrations() {
     };
     
     const subscribe = async() => {  
-      const past = await registry.queryFilter(filter);
+      const latestBlock = await provider.getBlockNumber();
+      const past = await registry.queryFilter(filter, Number(latestBlock) - 10000,latestBlock);
       console.log('past', past);
       setRegistrations((past.reverse() || []).map(mapEvent));
       registry.on(filter, listener);  
@@ -43,6 +44,9 @@ function Registrations() {
           <li key={r.id}><span className="address">{r.who}</span> {r.name}</li>
         ))}
       </ul>
+    )}
+    {!process.env.NEXT_PUBLIC_QUICKNODE_URL && (
+      <h3>Main rpc does not update this values, set NEXT_PUBLIC_QUICKNODE_URL if you want to see latest transactions</h3>
     )}
   </div>
 }

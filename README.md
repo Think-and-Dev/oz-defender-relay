@@ -1,38 +1,39 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Example of Relaying Meta-Transactions Using Open Zeppelin Defender
+Demo code for relaying meta-transactions using [OpenZeppelin Defender](https://openzeppelin.com/defender) using the [client API](https://docs.openzeppelin.com/defender/relay-api-reference).
 
-## Getting Started
+This project consists of a sample _names registry_ contract that accepts registrations for names either directly or via a meta-transaction, along with a client Dapp, plus the meta-transaction relayer implementation.
 
-First, run the development server:
+## Environment
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+Expected `.env` file in the project root:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `RELAY_API_KEY`: Defender Relay API key.
+- `RELAY_API_SECRET`: Defender Relay API secret.
+`NEXT_PUBLIC_QUICKNODE_URL`Rpc URL that accepts historical queries, can be quicknode, alchemy, etc. If it's null default will show a list of older transactions.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+To get the Realy keys you will need to [sign up to Defender](https://defender.openzeppelin.com/).
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Run the code
+Once you set up the .env file you need to install the dependencies
+`yarn install`
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Then start the next app
+`yarn dev`
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+It will start a webpage at localhost:3000 and a backend that is used for APIs.
 
-## Learn More
+## Highlights
+The most important parts are:
+- The smart contract needs to implement EIP-2771 and we need a minimal forwarder [Registry.](./contracts/Registry.sol)sol](./contracts/Registry.sol)
+- User signing of chain using signType_v4 at [signer.js](./src/eth/signer.js)
+- Send the signed message to the backend at [register.js](./src/eth/register.js), where is [sent to the relayer](./src/pages/api/relay.ts). Alternatively, if you don't want to use a backend you can use [Webhook](https://github.com/OpenZeppelin/workshops/blob/master/25-defender-metatx-api/app/src/eth/register.js#L10) and
+[Autotask](https://github.com/OpenZeppelin/workshops/blob/master/25-defender-metatx-api/autotasks/relay/index.js)
 
-To learn more about Next.js, take a look at the following resources:
+## More info
+This code is based on [Workshop 01](https://github.com/OpenZeppelin/workshops/tree/master/01-defender-meta-txs) which makes use of `defender-client` on the Goerli network. Functionality is supported across any of Defender's [supported chains](https://docs.openzeppelin.com/defender/#networks) -- simply modify the code.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Live demo running at [defender-metatx-workshop-demo.openzeppelin.com](https://defender-metatx-workshop-demo.openzeppelin.com/).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+[Video tutorial](https://youtu.be/Bhz5LJbq9YY)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+[Written guide](https://docs.openzeppelin.com/defender/guide-metatx)
